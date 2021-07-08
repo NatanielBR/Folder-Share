@@ -5,10 +5,13 @@ val logback_version: String by project
 plugins {
     application
     kotlin("jvm") version "1.5.20"
+    id("com.github.johnrengelman.shadow") version "5.2.0"
 }
 
 group = "br.com.nataniel"
 version = "0.0.1"
+project.setProperty("mainClassName", "br.com.nataniel.ApplicationKt")
+
 application {
     mainClass.set("br.com.nataniel.ApplicationKt")
     applicationDefaultJvmArgs = listOf("-Dio.ktor.development=true")
