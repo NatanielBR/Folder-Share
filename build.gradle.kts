@@ -9,11 +9,11 @@ plugins {
 }
 
 group = "br.com.nataniel"
-version = "0.0.1"
-project.setProperty("mainClassName", "br.com.nataniel.ApplicationKt")
+version = "1.0"
+project.setProperty("mainClassName", "br.com.nataniel.WebServerKt")
 
 application {
-    mainClass.set("br.com.nataniel.ApplicationKt")
+    mainClass.set("br.com.nataniel.WebServerKt")
     applicationDefaultJvmArgs = listOf("-Dio.ktor.development=true")
 }
 

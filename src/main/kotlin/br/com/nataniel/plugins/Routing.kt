@@ -1,5 +1,6 @@
 package br.com.nataniel.plugins
 
+import br.com.nataniel.WebSever
 import br.com.nataniel.dto.SimpleFile
 import io.ktor.application.*
 import io.ktor.freemarker.*
@@ -18,14 +19,18 @@ fun Application.configureRouting() {
          * The root path is a jar folder.
          */
         get("/") {
-            val jarFile = getJarFile()
 
+            val jarFile = WebSever.jarFile
             var files = jarFile.listFiles()?.toList() ?: listOf()
+            log.debug("Discovered ${files.size} from: ${jarFile.absolutePath}'")
 
             // remove this file
             files = files.filterNot { it.name == jarFile.name }
+
+            val parent = jarFile.parentFile ?: jarFile
+
             val data = mapOf(
-                "folder" to jarFile.parentFile.name,
+                "folder" to parent.name,
                 "parent" to "",
                 "files" to files.toRelativeFile(jarFile),
             )
@@ -46,21 +51,24 @@ fun Application.configureRouting() {
 
             val path = parts.joinToString("/")
             log.debug("path -> $path")
-            val jar = getJarFile()
+            val jar = WebSever.jarFile
             // Resolve query path using jar file as root.
             val file = jar.resolve(path)
 
             if (file.exists()) {
                 if (file.isDirectory) {
-                    val list = file.listFiles()
-                    if (list == null) {
+                    val files = file.listFiles()
+                    if (files == null) {
                         call.respond(HttpStatusCode.BadGateway)
                         return@get
                     }
+
+                    log.debug("Discovered ${files.size} from: ${file.absolutePath}'")
+
                     val data = mapOf(
                         "folder" to file.name,
                         "parent" to file.parentFile.relativeFile(jar).path,
-                        "files" to list.toList().toRelativeFile(jar),
+                        "files" to files.toList().toRelativeFile(jar),
                     )
 
                     call.respond(FreeMarkerContent("index.ftl", data, ""))
@@ -73,13 +81,6 @@ fun Application.configureRouting() {
         }
     }
 
-}
-
-/**
- * Get jar location as File using java class methods.
- */
-private fun getJarFile(): File {
-    return File(SimpleFile::class.java.protectionDomain.codeSource.location.toURI())
 }
 
 /**
